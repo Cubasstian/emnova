@@ -27,4 +27,26 @@ class retos extends baseCrud{
 		$db = new database();
        	return $db->ejecutarConsulta($sql);
 	}
+
+	public function getRetosTotal(){
+		$sql="
+			SELECT  
+			rt.id,
+			rt.titulo,
+			rt.descripcion,
+			rt.fecha_inicio,
+			rt.fecha_fin,
+			rt.estado,
+			rt.creado_por,
+			rt.fecha_creacion,
+			us.id as usid, 
+			us.nombre, 
+			us.registro
+			FROM retos rt
+			INNER JOIN usuarios us ON us.id = rt.creado_por
+			WHERE 1;
+		";
+		$db = new database();
+       	return $db->ejecutarConsulta($sql);
+	}
 }

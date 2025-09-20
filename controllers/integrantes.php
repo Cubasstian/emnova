@@ -28,4 +28,33 @@ class integrantes extends baseCrud{
 		$db = new database();
        	return $db->ejecutarConsulta($sql);
 	}
+
+	public function prueba($datos){
+
+   
+    echo json_encode($datos);
+}
+
+
+	public function eliminarIntegrante($datos){
+
+		print_r($datos);
+		$fk_ideas = $datos['fk_ideas'];
+		$integrante = $datos['integrante'];
+		$sql = "DELETE FROM integrantes WHERE fk_ideas = $fk_ideas AND id = $integrante";
+		$db = new database();
+		return $db->ejecutarConsulta($sql);
+	}
+
+	// public function eliminarIntegrante($datos){
+	// 	$fk_ideas = $datos['fk_ideas'];
+	// 	$integrante = $datos['integrante'];
+	// 	$sql = "DELETE FROM integrantes WHERE fk_ideas = $fk_ideas AND integrante = $integrante";
+
+	// 	// Devuelve el query como json
+	// 	echo json_encode([
+	// 		'query' => $sql,
+	// 		'datos' => $datos
+	// 	]);
+	// }
 }

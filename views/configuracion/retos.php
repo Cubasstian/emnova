@@ -110,6 +110,18 @@
 <script type="text/javascript">
     var id
     var boton
+
+     // --- Consejo extra: Validación en los inputs ---
+    $('#fecha_inicio').on('change', function(){
+        $('#fecha_fin').attr('min', $(this).val());
+    });
+
+    $('#fecha_fin').on('change', function(){
+        $('#fecha_inicio').attr('max', $(this).val());
+    });
+
+
+
     function init(info){
         //Cargar registro
         cargarRegistros({info:{1:1}, nodefault:1}, 'crear', function(){
@@ -151,6 +163,19 @@
             $('#botonGuardarRetos').show()
             $('#botonActualizarRetos').hide()
             $('#modalRetos').modal('show')
+
+             // --- Bloque para fecha actual y mínimo ---
+    var hoy = new Date();
+    var yyyy = hoy.getFullYear();
+    var mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses desde 0
+    var dd = String(hoy.getDate()).padStart(2, '0');
+    var fechaActual = yyyy + '-' + mm + '-' + dd;
+
+    $('#fecha_inicio').val(fechaActual);
+    $('#fecha_inicio').attr('min', fechaActual);
+
+    $('#fecha_fin').val(fechaActual);
+    $('#fecha_fin').attr('min', fechaActual);
         })
 
         $('.btn-submit').on('click', function(){
@@ -160,6 +185,18 @@
         $('#formularioRetos').on('submit', function(e){
             e.preventDefault()
             let datos = parsearFormulario($(this))
+
+             // Tomar los valores de las fechas
+    const fechaInicio = $('#fecha_inicio').val();
+    const fechaFin = $('#fecha_fin').val();
+
+    // Validación: fecha inicio no puede ser mayor a fecha fin
+    if(fechaInicio > fechaFin){
+        toastr.error('La fecha de inicio no puede ser mayor a la fecha fin.');
+        return; // No enviar el formulario
+    }
+
+
             if(boton == 'botonGuardarRetos'){
                 enviarPeticion('retos', 'insert', {info: datos}, function(r){
                     toastr.success('Se creo correctamente')

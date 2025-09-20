@@ -181,4 +181,46 @@ class ideas extends baseCrud{
 		$db = new database();
        	return $db->ejecutarConsulta($sql);
 	}
+
+	public function getInforme(){
+
+		$sql = "SELECT 
+				id.id,
+				id.fk_retos,
+				rt.titulo as restostitulos,
+				rt.descripcion as retosdescp,
+				rt.fecha_inicio as retofecha_inicio,
+				rt.fecha_fin as retosfecha_fin,
+				id.fk_tipos,
+				tpo.nombre as tiponombre,
+				tpo.descripcion as tipodescripcion,
+				id.titulo,
+				id.descripcion,
+				id.justificacion,
+				id.objetivo,
+				id.beneficios,
+				id.tiempo,
+				ges.id as idgestor,
+				ges.nombre as nombregestor,
+				ges.registro as registrogestor,
+				id.fecha_pitch,
+				id.lugar_pitch,
+				id.estado,
+				us.id as creadoid,
+				us.nombre as creadnombre,
+				us.registro as creadoregistro,
+				id.fecha_creacion,
+				id.observaciones
+				FROM ideas id
+				INNER JOIN tipos tpo ON tpo.id = id.fk_tipos
+				INNER JOIN retos rt ON rt.id = id.fk_retos
+				INNER JOIN usuarios us ON us.id = id.creado_por
+				INNER JOIN usuarios ges ON ges.id = id.gestor
+				WHERE 1";
+
+		$db = new database();
+       	return $db->ejecutarConsulta($sql);
+	}
+
+	
 }

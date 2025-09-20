@@ -94,6 +94,11 @@
                                                 <i class="fas fa-search"></i>
                                             </button>
                                         </td>
+                                         <td>
+                                            <button type="button" class="btn btn-default btn-sm" onClick="mostrarIntegrantesElminar(${registro.id})" title="ver integrantes">
+                                                <i class="fas fa-users"></i>
+                                            </button>
+                                        </td>
                                         <td>
                 							<button type="button" class="btn btn-default btn-sm" onClick="aprobar(${registro.id})" title="Aprobar">
                                                 <i class="fas fa-check text-success"></i>
@@ -135,6 +140,33 @@
             }
         })
     }
+
+
+    function eliminarIntegranteModalR(idIntegrante, idea) {
+    console.log('idIntegrante', idIntegrante);
+    console.log('idea', idea);
+
+    Swal.fire({
+        icon: 'warning',
+        title: 'Eliminar integrante',
+        text: '¿Está seguro que desea eliminar este integrante?',
+        showCancelButton: true,
+        confirmButtonText: 'Eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if(result.value){
+            // Llama al controlador para eliminar
+            enviarPeticion('integrantes', 'eliminarIntegrante', { fk_ideas: idea, integrante: idIntegrante }, function(r){
+                if(r.ejecuto){
+                    toastr.success('Integrante eliminado correctamente');
+                    Swal.close();
+                } else {
+                    toastr.error('No se pudo eliminar el integrante');
+                }
+            });
+        }
+    });
+}
 </script>
 </body>
 </html>

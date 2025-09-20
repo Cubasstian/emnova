@@ -9,7 +9,7 @@
                         Dashboard
                     </h1>
                 </div>
-                <div class="col-sm-4">
+                <!-- <div class="col-sm-4">
                     <div class="form-group row">
                         <label for="vigencia" class="col-sm-4 col-form-label">Mes</label>
                         <div class="col-sm-6">
@@ -22,7 +22,7 @@
                             </select>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="col-sm-4">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="solicitudes/missolicitudes/">Inicio</a></li>
@@ -33,14 +33,45 @@
         </div>
     </section>
 
-    <section class="content">
+     <section class="content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
                             <div class="chart">
-                                <div id="ingresosDia" style="height: 400px"></div>
+                                <table id="tablaIdeas" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Título Idea</th>
+                                            <th>Descripción Idea</th>
+                                            <th>Justificación</th>
+                                            <th>Objetivo</th>
+                                            <th>Beneficios</th>
+                                            <th>Tiempo</th>
+                                            <th>ID Gestor</th>
+                                            <th>Nombre Gestor</th>
+                                            <th>Registro Gestor</th>
+                                            <th>Fecha Pitch</th>
+                                            <th>Lugar Pitch</th>
+                                            <th>Estado</th>
+                                            <th>ID Creador</th>
+                                            <th>Nombre Creador</th>
+                                            <th>Registro Creador</th>
+                                            <th>Fecha Creación</th>
+                                            <th>ID Reto</th>
+                                            <th>Título Reto</th>
+                                            <th>Descripción Reto</th>
+                                            <th>Fecha Inicio Reto</th>
+                                            <th>Fecha Fin Reto</th>
+                                            <th>Tipo</th>
+                                            <th>Descripción Tipo</th>
+                                            <th>Observaciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -61,18 +92,86 @@
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
 <script type="text/javascript">
-    var vigencia = 0
-    function init(info){
-    	//Seleccionar vigencia actual y carga inicial
-        vigencia = moment().format('YYYYMM')
-        $('#vigencia').val(vigencia)
-        ingresosDia()
+  var vigencia = 0;
 
-        $('#vigencia').on('change', function(){
-            vigencia = $(this).val()
-            ingresosDia()
-        })
-    }
+function init(info) {
+    var tablaIdeas = $('#tablaIdeas').DataTable({
+        scrollX: true,
+        scrollY: true,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: 'Exportar a Excel',
+                className: 'btn btn-info',
+                title: 'Ideas'
+            }
+        ],
+        language: {
+            decimal: "",
+            emptyTable: "Sin datos para mostrar",
+            info: "Mostrando _START_ al _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 to 0 of 0 entries",
+            infoFiltered: "(Filtrado de _MAX_ total registros)",
+            thousands: ".",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "Ningún registro encontrado",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            },
+            aria: {
+                sortAscending: ": activar para ordenar la columna ascendente",
+                sortDescending: ": activar para ordenar la columna descendente"
+            }
+        },
+        columns: [
+            { data: 'id' },
+            { data: 'titulo' },
+            { data: 'descripcion' },
+            { data: 'justificacion' },
+            { data: 'objetivo' },
+            { data: 'beneficios' },
+            { data: 'tiempo' },
+            { data: 'idgestor' },
+            { data: 'nombregestor' },
+            { data: 'registrogestor' },
+            { data: 'fecha_pitch' },
+            { data: 'lugar_pitch' },
+            { data: 'estado' },
+            { data: 'creadoid' },
+            { data: 'creadnombre' },
+            { data: 'creadoregistro' },
+            { data: 'fecha_creacion' },
+            { data: 'fk_retos' },
+            { data: 'restostitulos' },
+            { data: 'retosdescp' },
+            { data: 'retofecha_inicio' },
+            { data: 'retosfecha_fin' },
+            { data: 'tiponombre' },
+            { data: 'tipodescripcion' },
+            { data: 'observaciones' }
+        ]
+    });
+
+    cargarIdeas(tablaIdeas);
+}
+
+function cargarIdeas(tabla) {
+    enviarPeticion('ideas', 'getInforme', {}, function(r) {
+        if (r.ejecuto && r.data) {
+            tabla.clear().rows.add(r.data).draw();
+        } else {
+            toastr.error('Error al cargar las ideas');
+        }
+    });
+}
+   
 
     function ingresosDia(){
         let datos = [

@@ -217,10 +217,34 @@
 <?php require('views/footer.php');?>
 
 <script type="text/javascript">
+    var id
     var idReto = <?=($parametros[0] == '') ? 1 : $parametros[0]; ?>;
     var integrante = {}
     var integrantes = []
     function init(info){
+        
+        id = info.data.usuario.id
+        //Cargar información base
+		enviarPeticion('usuarios', 'select', {info: {id: id}}, function(r){
+      
+    $('#nombre').text(r.data[0].nombre)
+    $('#registro').text(r.data[0].registro)
+
+    // Mostrar el usuario actual en la tabla de integrantes
+
+        integrantes.push(id);
+        let fila = `<tr id="${id}" class="table-success">
+                        <td>${r.data[0].nombre}</td>
+                        <td>${r.data[0].registro}</td>
+                        <td>
+                            <span class="badge badge-success">
+                                            <i class="fas fa-user-check"></i> Principal
+                                        </span>
+                        </td>
+                    </tr>`;
+        $('#listadoIntegrantes').append(fila);
+    
+});
         //Mostrar reto en caso de que exista
         if(idReto != 1){
             enviarPeticion('retos', 'select', {info:{id: idReto}}, function(r){

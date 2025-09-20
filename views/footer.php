@@ -19,6 +19,12 @@
 <!-- DataTables -->
 <script src="plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
 <!-- moment -->
 <script src="plugins/moment/moment.min.js"></script>
 <script src="plugins/moment/locale/es.js"></script>
@@ -179,13 +185,24 @@
                                                 </a>
                                             </li>
                                         </ul>
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                <a href="reportes/reportesIdeas/" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Reporte Ideas</p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                <a href="reportes/reportesRetos/" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Reportes de Retos</p>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>`
-                let menuBuscar =`<li class="nav-item">
-                                    <a href="ideass/buscar/" class="nav-link">
-                                        <i class="fas fa-search"></i>
-                                        <p>Buscar</p>
-                                    </a>
-                                </li>`
+                let menuBuscar =``
                 if(r.data.usuario.rol == 'Administrador'){
                     menu = menuAdmin + menuRetos + menuIdeas + menuProcesoAbre + menuReparto + menuRefinar + menuPitch + menuCalifica + menuProcesoCierra + menuReportes + menuBuscar
                 }else if(r.data.usuario.rol == 'Gestor'){
@@ -206,4 +223,11 @@
             //$(':input[required]').css('box-shadow','1px 1px red')
         })
     })  
+
+    // <li class="nav-item">
+    //                                 <a href="ideass/buscar/" class="nav-link">
+    //                                     <i class="fas fa-search"></i>
+    //                                     <p>Buscar</p>
+    //                                 </a>
+    //                             </li>
 </script>
