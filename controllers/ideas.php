@@ -78,6 +78,7 @@ class ideas extends baseCrud{
 					ide.titulo,
 					ide.descripcion,
 					ide.fecha_pitch,
+					ide.fecha_creacion,
 					ide.lugar_pitch,
 					ges.id AS idGestor,
 					ges.nombre AS gestor,

@@ -140,7 +140,7 @@
                 let menuRefinar =               `<li class="nav-item">
                                                     <a href="proceso/refinar/" class="nav-link">
                                                         <i class="far fa-circle nav-icon"></i>
-                                                        <p>Refinar</p>
+                                                        <p>Viabilizar</p>
                                                     </a>
                                                 </li>`
                 let menuPitch =                 `<li class="nav-item">

@@ -226,7 +226,7 @@
             }
             r.data.map(registro => {
                 fila += `<tr id=${registro.id}>
-                            <td>${registro.id}</td>
+                            <td>${"R-" + (registro.fecha_inicio || '').slice(0, 7) + "-" + registro.id.toString().padStart(3,'0')}</td>
                             <td>${registro.titulo}</td>
                             <td>${registro.descripcion}</td>
                             <td>${registro.fecha_inicio}</td>

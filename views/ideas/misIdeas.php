@@ -74,8 +74,9 @@
                                     </tr>
                                 </table>`
                 }
+
                 fila += `<tr id=${registro.id}>
-                            <td>I-${registro.id.toString().padStart(3,'0')}</td>
+                            <td>I-${(registro.fecha_creacion || '').slice(0, 7)}-${registro.id.toString().padStart(3,'0')}</td>
                             <td>${fuente}</td>
                             <td>${registro.titulo}</td>
                             <td>${registro.descripcion}</td>
