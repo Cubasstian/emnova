@@ -456,6 +456,88 @@
             }
         });
     }
+
+    function mostrarHistorico(idIdea){
+        enviarPeticion('ideasHistorico', 'getHistorico', {idea: idIdea}, function(r){
+            let fila = '';
+            if (r.data && r.data.length > 0) {
+                r.data.forEach(registro => {
+                    let cambio = {};
+                    try {
+                        cambio = JSON.parse(registro.informacion);
+                    } catch (e) {
+                        cambio = {};
+                    }
+
+                    let observacion = cambio.observaciones || '-';
+                    let info = cambio.info || {};
+                    
+                    let detallesHtml = '';
+                    if (info.titulo) {
+                        detallesHtml = `
+                            <details class="text-left" style="font-size: 0.75rem; margin-top: 5px;">
+                                <summary class="text-primary font-weight-bold" style="cursor: pointer; outline: none;">Ver Idea</summary>
+                                <div class="p-2 mt-1 border rounded bg-light" style="line-height: 1.3;">
+                                    <strong>Título:</strong> ${info.titulo}<br>
+                                    <strong>Descripción:</strong> ${info.descripcion || '-'}<br>
+                                    <strong>Justificación:</strong> ${info.justificacion || '-'}<br>
+                                    <strong>Objetivo:</strong> ${info.objetivo || '-'}<br>
+                                    <strong>Beneficios:</strong> ${info.beneficios || '-'}<br>
+                                    <strong>Tiempo:</strong> ${info.tiempo || '-'}
+                                </div>
+                            </details>
+                        `;
+                    } else {
+                        detallesHtml = '<span class="text-muted">-</span>';
+                    }
+
+                    let estadoBadge = '';
+                    let estadoVal = cambio.estado || 1;
+                    if (estados[estadoVal]) {
+                        estadoBadge = `<span class="badge badge-${colores[estadoVal]}">${estados[estadoVal]}</span>`;
+                    } else {
+                        estadoBadge = `<span class="badge badge-secondary">Estado ${estadoVal}</span>`;
+                    }
+
+                    fila += `
+                        <tr>
+                            <td class="align-middle text-left">
+                                <strong>${registro.nombre}</strong><br>
+                                <small class="text-muted"><i class="far fa-clock"></i> ${registro.fecha_creacion}</small>
+                            </td>
+                            <td class="align-middle text-center">${estadoBadge}</td>
+                            <td class="align-middle text-left">${observacion}</td>
+                            <td class="align-middle text-left">${detallesHtml}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                fila = '<tr><td colspan="4" class="text-center">No hay registros históricos</td></tr>';
+            }
+
+            Swal.fire({
+                title: `Histórico para la idea código # I-${idIdea.toString().padStart(3,'0')}`,
+                width: '850px',
+                html: `
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm text-sm">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Quién y Cuándo</th>
+                                    <th>Estado</th>
+                                    <th>Observación</th>
+                                    <th>Detalle del registro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${fila}
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            });
+        });
+    }
 </script>
 </body>
 </html>

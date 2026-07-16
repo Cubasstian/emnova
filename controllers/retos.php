@@ -54,6 +54,32 @@ class retos extends baseCrud{
 		if(isset($datos['info']['creado_por'])){
 			unset($datos['info']['creado_por']);
 		}
-		return parent::insert($datos);
+		$resultado = parent::insert($datos);
+		if($resultado['ejecuto']){
+			require_once "controllers/retosHistorico.php";
+			$objHistorico = new retosHistorico();
+			$objHistorico->insert([
+				'info' => [
+					'fk_idretos' => $resultado['insertId'],
+					'informacion' => json_encode($datos)
+				]
+			]);
+		}
+		return $resultado;
+	}
+
+	public function update($datos){
+		$resultado = parent::update($datos);
+		if($resultado['ejecuto']){
+			require_once "controllers/retosHistorico.php";
+			$objHistorico = new retosHistorico();
+			$objHistorico->insert([
+				'info' => [
+					'fk_idretos' => $datos['id'],
+					'informacion' => json_encode($datos)
+				]
+			]);
+		}
+		return $resultado;
 	}
 }

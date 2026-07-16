@@ -415,6 +415,9 @@
                                     <button type="button" class="btn btn-default btn-sm" onClick="abrirModalArchivos(${registro.id})" title="Ver/Editar Archivos">
                                         <i class="fas fa-file-pdf text-danger"></i> Archivos
                                     </button>
+                                    <button type="button" class="btn btn-default btn-sm" onClick="mostrarHistorico(${registro.id})" title="Ver Histórico">
+                                        <i class="fas fa-history text-warning"></i> Histórico
+                                    </button>
                                 </div>
                             </td>
                         </tr>`
@@ -589,6 +592,73 @@
             } else {
                 toastr.error('Usuario no encontrado con ese registro.');
             }
+        });
+    }
+
+    function mostrarHistorico(idReto){
+        enviarPeticion('retosHistorico', 'getHistorico', {reto: idReto}, function(r){
+            let fila = '';
+            if (r.data && r.data.length > 0) {
+                r.data.forEach(registro => {
+                    let cambio = {};
+                    try {
+                        cambio = JSON.parse(registro.informacion);
+                    } catch (e) {
+                        cambio = {};
+                    }
+
+                    let info = cambio.info || {};
+                    let detallesHtml = '';
+                    if (info.titulo) {
+                        detallesHtml = `
+                            <details class="text-left" style="font-size: 0.75rem; margin-top: 5px;">
+                                <summary class="text-primary font-weight-bold" style="cursor: pointer; outline: none;">Ver Reto</summary>
+                                <div class="p-2 mt-1 border rounded bg-light" style="line-height: 1.3;">
+                                    <strong>Título:</strong> ${info.titulo}<br>
+                                    <strong>Descripción:</strong> ${info.descripcion || '-'}<br>
+                                    <strong>Fecha Inicio:</strong> ${info.fecha_inicio || '-'}<br>
+                                    <strong>Fecha Fin:</strong> ${info.fecha_fin || '-'}<br>
+                                    <strong>Estado:</strong> ${info.estado || '-'}
+                                </div>
+                            </details>
+                        `;
+                    } else {
+                        detallesHtml = '<span class="text-muted">-</span>';
+                    }
+
+                    fila += `
+                        <tr>
+                            <td class="align-middle text-left">
+                                <strong>${registro.nombre}</strong><br>
+                                <small class="text-muted"><i class="far fa-clock"></i> ${registro.fecha_creacion}</small>
+                            </td>
+                            <td class="align-middle text-left">${detallesHtml}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                fila = '<tr><td colspan="2" class="text-center">No hay registros históricos</td></tr>';
+            }
+
+            Swal.fire({
+                title: `Histórico para el reto código # R-${idReto.toString().padStart(3,'0')}`,
+                width: '600px',
+                html: `
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm text-sm">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Quién y Cuándo</th>
+                                    <th>Detalle del registro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${fila}
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            });
         });
     }
 </script>

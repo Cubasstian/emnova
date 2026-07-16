@@ -13,10 +13,11 @@ class retosHistorico extends baseCrud{
 				FROM
 					retos_historico idrh INNER JOIN usuarios usu ON idrh.creado_por = usu.id
 				WHERE
-					idrh.fk_idretos = $datos[reto]
+					idrh.fk_idretos = {$datos['reto']}
 				ORDER BY
 					idrh.fecha_creacion";
 		$db = new database();
        	return $db->ejecutarConsulta($sql);
     }
 }
+?>
