@@ -132,7 +132,7 @@
                                             <a href="#" class="nav-link">
                                                 <i class="fas fa-project-diagram"></i>
                                                 <p>
-                                                    Proceso
+                                                    Refinar
                                                     <i class="right fas fa-angle-left"></i>
                                                 </p>
                                             </a>
