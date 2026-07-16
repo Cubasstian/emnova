@@ -120,12 +120,14 @@ class ideas extends baseCrud{
 					ges.nombre AS gestor,
 					ide.estado,
 					ide.fecha_creacion,
+					dep.dependencia,
 					DATEDIFF(NOW(),ide.fecha_modificacion) AS dias
 				FROM
 					ideas ide 
 					LEFT JOIN tipos tip ON ide.fk_tipos = tip.id 
 					INNER JOIN usuarios pro ON ide.creado_por = pro.id 
 					LEFT JOIN usuarios ges ON ide.gestor = ges.id
+					LEFT JOIN dependencias dep ON ide.code_gerencia = dep.code_gerencia
 				WHERE					
 					$filtro";
 		$db = new database();

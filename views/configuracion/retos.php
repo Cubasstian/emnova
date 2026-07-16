@@ -125,6 +125,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="code_gerencia">Dependencia (*)</label>
+                            <select class="form-control" name="code_gerencia" id="code_gerencia" required="required">
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="titulo">Titulo</label>
                             <input type="text" class="form-control" name="titulo" id="titulo" required="required">
                         </div>
@@ -236,6 +242,8 @@
             }
             generarCamposAnexos();
         });
+
+        llenarSelect('dependencia', 'getDuplicados', {1:1}, 'code_gerencia', 'dependencia', 1, 'Seleccione...', 'code_gerencia');
 
         // Cargar datos del usuario creador para mostrar al crear reto
         enviarPeticion('usuarios', 'select', {info: {id: info.data.usuario.id}}, function(rUsuario){

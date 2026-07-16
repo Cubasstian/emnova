@@ -15,6 +15,10 @@ function mostrarDetalle(idIdea){
                                 <td>${registro.tipo}</td>
                             </tr>
                             <tr>
+                                <th>Dependencia</th>
+                                <td>${registro.dependencia || 'Sin asignar'}</td>
+                            </tr>
+                            <tr>
                                 <th>Titulo</th>
                                 <td>${registro.titulo}</td>
                             </tr>

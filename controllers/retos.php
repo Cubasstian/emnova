@@ -49,4 +49,11 @@ class retos extends baseCrud{
 		$db = new database();
        	return $db->ejecutarConsulta($sql);
 	}
+
+	public function insert($datos){
+		if(isset($datos['info']['creado_por'])){
+			unset($datos['info']['creado_por']);
+		}
+		return parent::insert($datos);
+	}
 }

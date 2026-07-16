@@ -75,6 +75,73 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para gestionar integrantes de la idea -->
+    <div class="modal fade" id="modalGestionIntegrantes">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fas fa-users mr-2 text-primary"></i> Gestionar Integrantes</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Buscador e Inline Form para agregar nuevos integrantes -->
+                    <div class="card card-outline card-primary mb-3">
+                        <div class="card-header py-1">
+                            <h3 class="card-title font-weight-bold" style="font-size: 0.9rem;">Agregar Integrante</h3>
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group mb-0">
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" class="form-control" id="buscarRegistroIntegrante" placeholder="Registro...">
+                                            <span class="input-group-append">
+                                                <button type="button" class="btn btn-primary" onclick="buscarIntegrantePorRegistro()">
+                                                    <i class="fas fa-search"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group mb-0">
+                                        <input type="text" class="form-control form-control-sm" id="nombreNuevoIntegrante" readonly placeholder="Nombre del integrante...">
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <button type="button" class="btn btn-success btn-sm btn-block" id="botonAgregarIntegrante" onclick="agregarIntegranteAIdea()" disabled>
+                                        Agregar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de integrantes actuales -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Registro</th>
+                                    <th class="text-center" style="width: 100px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaIntegrantesCuerpo">
+                                <!-- Se cargará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php require('views/footer.php');?>
@@ -262,6 +329,132 @@
                 toastr.error('Error al reemplazar el archivo');
             }
         }, index);
+    }
+
+    var idIdeaSeleccionadaIntegrantes = null;
+    var integranteEncontrado = null;
+
+    function mostrarIntegrantes(idIdea) {
+        idIdeaSeleccionadaIntegrantes = idIdea;
+        integranteEncontrado = null;
+        $('#buscarRegistroIntegrante').val('');
+        $('#nombreNuevoIntegrante').val('');
+        $('#botonAgregarIntegrante').prop('disabled', true);
+        
+        $('#modalGestionIntegrantes').modal('show');
+        cargarListaIntegrantes();
+    }
+
+    function cargarListaIntegrantes() {
+        let idIdea = idIdeaSeleccionadaIntegrantes;
+        enviarPeticion('integrantes', 'getIntegrantes', {criterio: 'idea', valor: idIdea}, function(r) {
+            let html = '';
+            if (r.data && r.data.length > 0) {
+                let totalIntegrantes = r.data.length;
+
+                r.data.forEach(function(registro) {
+                    let botonEliminar = '';
+                    if (totalIntegrantes > 1) {
+                        botonEliminar = `
+                            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarIntegranteDeIdea(${registro.id})" title="Eliminar Integrante">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        `;
+                    } else {
+                        botonEliminar = `
+                            <button type="button" class="btn btn-danger btn-sm" disabled title="Debe quedar al menos un integrante">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        `;
+                    }
+
+                    html += `
+                        <tr>
+                            <td class="align-middle">${registro.nombre}</td>
+                            <td class="align-middle">${registro.registro}</td>
+                            <td class="text-center align-middle">${botonEliminar}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html = `<tr><td colspan="3" class="text-center">Sin integrantes asignados</td></tr>`;
+            }
+            $('#listaIntegrantesCuerpo').html(html);
+        });
+    }
+
+    function buscarIntegrantePorRegistro() {
+        let registroVal = $('#buscarRegistroIntegrante').val().trim();
+        if (registroVal === '') {
+            toastr.warning('Por favor ingrese un número de registro.');
+            return;
+        }
+        enviarPeticion('usuarios', 'select', {info: {registro: registroVal}}, function(r) {
+            if (r.data && r.data.length > 0) {
+                integranteEncontrado = r.data[0];
+                $('#nombreNuevoIntegrante').val(integranteEncontrado.nombre);
+                $('#botonAgregarIntegrante').prop('disabled', false);
+                toastr.success('Integrante encontrado.');
+            } else {
+                integranteEncontrado = null;
+                $('#nombreNuevoIntegrante').val('');
+                $('#botonAgregarIntegrante').prop('disabled', true);
+                toastr.error('Registro de integrante no encontrado.');
+            }
+        });
+    }
+
+    function agregarIntegranteAIdea() {
+        if (!integranteEncontrado) return;
+        let idIdea = idIdeaSeleccionadaIntegrantes;
+        
+        enviarPeticion('integrantes', 'getIntegrantes', {criterio: 'idea', valor: idIdea}, function(r) {
+            let yaExiste = false;
+            if (r.data && r.data.length > 0) {
+                yaExiste = r.data.some(function(item) {
+                    return item.registro == integranteEncontrado.registro;
+                });
+            }
+
+            if (yaExiste) {
+                toastr.error('El integrante ya se encuentra agregado a esta idea.');
+                return;
+            }
+
+            enviarPeticion('integrantes', 'insert', {
+                info: {
+                    fk_ideas: idIdea,
+                    integrante: integranteEncontrado.id
+                }
+            }, function(dbRes) {
+                toastr.success('Integrante agregado correctamente.');
+                $('#buscarRegistroIntegrante').val('');
+                $('#nombreNuevoIntegrante').val('');
+                $('#botonAgregarIntegrante').prop('disabled', true);
+                integranteEncontrado = null;
+                cargarListaIntegrantes();
+            });
+        });
+    }
+
+    function eliminarIntegranteDeIdea(idIntegranteRecord) {
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: "Se eliminará el integrante de la idea.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                enviarPeticion('integrantes', 'delete', {id: idIntegranteRecord}, function(r) {
+                    toastr.success('Integrante eliminado.');
+                    cargarListaIntegrantes();
+                });
+            }
+        });
     }
 </script>
 </body>

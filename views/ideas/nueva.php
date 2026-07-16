@@ -48,6 +48,20 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
+                                    <label for="code_gerencia">
+                                        Dependencia (*)
+                                        <br>
+                                        <small class="text-muted">Seleccione la dependencia asociada a la idea</small>
+                                    </label>
+                                    <select class="form-control" name="code_gerencia" id="code_gerencia" required="required">
+                                        <option value="">Seleccione...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
                                     <label for="titulo">
                                         Título
                                         <br> 
@@ -240,6 +254,8 @@
             }
             generarCamposAnexosIdeas();
         });
+
+        llenarSelect('dependencia', 'getDuplicados', {1:1}, 'code_gerencia', 'dependencia', 1, 'Seleccione...', 'code_gerencia');
         
         id = info.data.usuario.id
         //Cargar información base
