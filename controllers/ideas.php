@@ -9,7 +9,9 @@ class ideas extends baseCrud{
 
 	public function crear($datos){
 		//print_r($datos);
-		$datos['estado'] = 1;
+		$datos['info']['estado'] = 1;
+		$datos['info']['fk_tipos'] = 1; // Tipo por defecto
+		$datos['info']['gestor'] = 1;    // Gestor por defecto
 		//Incluir fecha de modificación para que inicie el conteo
 		$datos['info']['fecha_modificacion'] = date("Y-m-d H:i:s");
 
@@ -85,7 +87,9 @@ class ideas extends baseCrud{
 					ide.estado,
 					DATEDIFF(NOW(),ide.fecha_modificacion) AS dias
 				FROM
-					(ideas ide INNER JOIN retos ret ON ide.fk_retos = ret.id) INNER JOIN usuarios ges ON ide.gestor = ges.id
+					ideas ide 
+					LEFT JOIN retos ret ON ide.fk_retos = ret.id 
+					LEFT JOIN usuarios ges ON ide.gestor = ges.id
 				WHERE					
 					$filtro";
 		$db = new database();
@@ -118,7 +122,10 @@ class ideas extends baseCrud{
 					ide.fecha_creacion,
 					DATEDIFF(NOW(),ide.fecha_modificacion) AS dias
 				FROM
-					((ideas ide INNER JOIN tipos tip ON ide.fk_tipos = tip.id) INNER JOIN usuarios pro ON ide.creado_por = pro.id) INNER JOIN usuarios ges ON ide.gestor = ges.id
+					ideas ide 
+					LEFT JOIN tipos tip ON ide.fk_tipos = tip.id 
+					INNER JOIN usuarios pro ON ide.creado_por = pro.id 
+					LEFT JOIN usuarios ges ON ide.gestor = ges.id
 				WHERE					
 					$filtro";
 		$db = new database();

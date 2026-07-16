@@ -23,6 +23,39 @@
             <div class="row" id="contenido"></div>
         </div>
     </section>
+
+    <!-- Modal para visualizar archivos del reto -->
+    <div class="modal fade" id="modalArchivosReto">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fas fa-folder-open mr-2 text-warning"></i> Documentos del Reto</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Anexo</th>
+                                    <th>Archivo / Ruta</th>
+                                    <th class="text-center" style="width: 150px;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaArchivosCuerpo">
+                                <!-- Se cargará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php require('views/footer.php');?>
@@ -58,7 +91,7 @@
                                     </p>
                                 </div>
                                 <div class="card-footer text-center">
-                                    <button type="button" class="btn btn-default" onClick="downloadDocument(${registro.id},'retos')" title="Ver archivo">
+                                    <button type="button" class="btn btn-default" onClick="verDetalleReto(${registro.id})" title="Ver archivo">
                                         <i class="fas fa-file-download"></i> Detalle
                                     </button>
                                     <a class="btn btn-success" href="ideas/nueva/${registro.id}">Participar</a>
@@ -69,6 +102,59 @@
             $('#contenido').append(fila)
             callback()
         })
+    }
+
+    function verDetalleReto(idReto) {
+        enviarPeticion('retosArchivos', 'select', {info: {fk_idreto: idReto}}, function(r) {
+            let html = '';
+            if (r.data && r.data.length > 0) {
+                r.data.forEach(function(archivo, i) {
+                    let match = archivo.ruta.match(/_(\d+)\.pdf$/);
+                    let index = match ? match[1] : (i + 1);
+                    html += `
+                        <tr>
+                            <td class="align-middle"><strong>Anexo ${index}</strong></td>
+                            <td class="align-middle text-muted">${archivo.ruta}</td>
+                            <td class="text-center align-middle">
+                                <button type="button" class="btn btn-sm btn-info" onclick="downloadDocument(${idReto}, 'retos', ${index})">
+                                    <i class="fas fa-file-download"></i> Descargar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `
+                    <tr>
+                        <td class="align-middle"><strong>Documento General</strong></td>
+                        <td class="align-middle text-muted">Archivo adjunto del reto</td>
+                        <td class="text-center align-middle">
+                            <button type="button" class="btn btn-sm btn-info" onclick="descargarAnexosFallback(${idReto})">
+                                <i class="fas fa-file-download"></i> Descargar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+            $('#listaArchivosCuerpo').html(html);
+            $('#modalArchivosReto').modal('show');
+        });
+    }
+
+    function descargarAnexosFallback(idReto) {
+        enviarPeticionPura('archivos', 'existDocumento', {id: idReto, ruta: 'retos', indice: 1}, function(res) {
+            if (res.ejecuto && res.mensaje === true) {
+                downloadDocument(idReto, 'retos', 1);
+            } else {
+                enviarPeticionPura('archivos', 'existDocumento', {id: idReto, ruta: 'retos'}, function(resSinIndice) {
+                    if (resSinIndice.ejecuto && resSinIndice.mensaje === true) {
+                        downloadDocument(idReto, 'retos');
+                    } else {
+                        toastr.error('No se encontraron documentos asociados a este reto.');
+                    }
+                });
+            }
+        });
     }
 </script>
 </body>

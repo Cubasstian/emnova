@@ -2,7 +2,13 @@
 
 class archivos{
 	public function cargarDocumento($datos){
-		if(move_uploaded_file($_FILES['file']['tmp_name'], $datos['ruta'].'/'.$datos['id'].'.pdf')){
+		$dir = $datos['ruta'].'/'.$datos['id'];
+		if (!is_dir($dir)) {
+			mkdir($dir, 0777, true);
+		}
+		$suffix = (isset($datos['indice']) && $datos['indice'] !== '') ? '_' . $datos['indice'] : '';
+		$filePath = $dir.'/'.$datos['id'].$suffix.'.pdf';
+		if(move_uploaded_file($_FILES['file']['tmp_name'], $filePath)){
 			return [
 				'ejecuto' => true,
 				'msg' => 'Carga correcta'
@@ -16,7 +22,8 @@ class archivos{
 	}
 
 	public function getDocumento($datos){
-		$file = $datos['ruta'].'/'.$datos['id'].'.pdf';
+		$suffix = (isset($datos['indice']) && $datos['indice'] !== '') ? '_' . $datos['indice'] : '';
+		$file = $datos['ruta'].'/'.$datos['id'].'/'.$datos['id'].$suffix.'.pdf';
 		// Verificar si el archivo existe
 		if(file_exists($file)) {
 			// Lee el archivo en formato binario
@@ -38,7 +45,8 @@ class archivos{
 	}
 
 	public function existDocumento($datos){
-		$file = $datos['ruta'].'/'.$datos['id'].'.pdf';
+		$suffix = (isset($datos['indice']) && $datos['indice'] !== '') ? '_' . $datos['indice'] : '';
+		$file = $datos['ruta'].'/'.$datos['id'].'/'.$datos['id'].$suffix.'.pdf';
 		if(file_exists($file)) {
 			return [
 				'ejecuto' => true,

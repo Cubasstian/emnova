@@ -69,6 +69,12 @@
                                             </a>
                                         </li>
                                         <li class="nav-item">
+                                            <a href="configuracion/documentos/" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Documentos</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
                                             <a href="configuracion/retos/" class="nav-link">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Retos</p>

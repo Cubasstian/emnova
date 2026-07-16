@@ -151,9 +151,8 @@
                                 <h3 class="card-title">Adjuntos</h3>
                             </div>
                             <div class="card-body">
-                                <div class="form-group">
-                                    <label>Anexo</label>
-                                    <input type="file" class="form-control-file" id="documento" accept=".pdf" onChange="comprobarExtensionArchivoPDF(this)" required="required">
+                                <div id="contenedorAnexosIdeas">
+                                    <!-- Se cargarán los inputs dinámicamente -->
                                 </div>
                             </div>
                         </div>
@@ -221,7 +220,26 @@
     var idReto = <?=($parametros[0] == '') ? 1 : $parametros[0]; ?>;
     var integrante = {}
     var integrantes = []
+    var cantidadIdeasDoc = 1
+
+    function generarCamposAnexosIdeas() {
+        let html = '';
+        for (let i = 1; i <= cantidadIdeasDoc; i++) {
+            html += `<div class="mb-2">
+                        <label>Anexo ${i} ${i === 1 ? '(*)' : ''}</label>
+                        <input type="file" class="form-control-file documento-input" id="documento_${i}" data-index="${i}" accept=".pdf" onChange="comprobarExtensionArchivoPDF(this)" ${i === 1 ? 'required="required"' : ''}>
+                     </div>`;
+        }
+        $('#contenedorAnexosIdeas').html(html);
+    }
+
     function init(info){
+        enviarPeticion('documentos', 'select', {info: {formulario: 'ideas'}}, function(r){
+            if (r.data && r.data.length > 0) {
+                cantidadIdeasDoc = parseInt(r.data[0].cantidad);
+            }
+            generarCamposAnexosIdeas();
+        });
         
         id = info.data.usuario.id
         //Cargar información base
@@ -308,19 +326,51 @@
             e.preventDefault()
             let datos = parsearFormulario($(this))
             datos.fk_retos = idReto
-            //console.log(datos)
-            enviarPeticion('ideas', 'crear', {info:datos, integrantes: integrantes}, function(r){
-                //Cargar documento
-                cargarDocumento(document.getElementById('documento'), r.insertId, 'adjuntos')
-                //Enviar correo
-                /*enviarPeticion('correo', 'sendMail', {idea: r.insertId}, function(r){
-                    toastr.success(r.mensaje)
-                })*/
+            
+            let inputs = $('.documento-input').filter(function() {
+                return this.files && this.files.length > 0;
+            }).toArray();
+
+            enviarPeticion('ideas', 'crear', {info:datos, integrantes: integrantes}, async function(r){
+                let idIdea = r.insertId;
+
+                // Función auxiliar para subir un archivo usando Promise
+                const subirArchivo = (input, id, index) => {
+                    return new Promise((resolve) => {
+                        cargarDocumento(input, id, 'ideas', function(uploadRes) {
+                            if (uploadRes.ejecuto) {
+                                let filePath = 'ideas/' + id + '/' + id + '_' + index + '.pdf';
+                                enviarPeticion('ideasArchivos', 'insert', {
+                                    info: {
+                                        fk_idideas: id,
+                                        ruta: filePath,
+                                        estado: 1
+                                    }
+                                }, function(dbRes) {
+                                    resolve(true);
+                                });
+                            } else {
+                                resolve(false);
+                            }
+                        }, index);
+                    });
+                };
+
+                // For loop secuencial con async/await
+                for (let i = 0; i < inputs.length; i++) {
+                    let input = inputs[i];
+                    let index = input.getAttribute('data-index');
+                    await subirArchivo(input, idIdea, index);
+                }
+
+                //Limpiar formulario
+                $('#formularioIdea')[0].reset()
+                
                 //Enviar confirmación
                 Swal.fire({
                     icon: 'success',
-                    title: 'Confimación',
-                    text: `Se creo correctamente, código de la idea: I-${r.insertId.toString().padStart(3,'0')}`
+                    title: 'Confirmación',
+                    text: `Se creó correctamente, código de la idea: I-${idIdea.toString().padStart(3,'0')}`
                 }).then((result) =>{
                     window.location.href = 'ideas/misIdeas/'
                 })

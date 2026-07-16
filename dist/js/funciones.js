@@ -140,20 +140,35 @@ function currency(value, decimals, separators) {
 function comprobarExtensionArchivoPDF(input){
     //Primero se comprueba que tenga extensión pdf
     let archivo = input.files[0]
+    if (!archivo) return;
     let ext = archivo.name.split('.').pop()
     if(ext != 'pdf' && ext != 'PDF'){
         toastr.error("El archivo debe tener extensión pdf")
         $(input).val('')
+        return;
+    }
+    // Validar que el archivo no supere los 20MB (20 * 1024 * 1024 bytes)
+    let maxBytes = 20 * 1024 * 1024;
+    if (archivo.size > maxBytes) {
+        toastr.error("El archivo no debe superar los 20MB");
+        $(input).val('');
     }
 }
 
-function cargarDocumento(input, id, ruta){
+function cargarDocumento(input, id, ruta, callback, indice){
     let archivo = input.files[0]
+    if (!archivo) {
+        if (callback) callback({ejecuto: false, msg: 'No se seleccionó ningún archivo'});
+        return;
+    }
     var fd = new FormData()
     fd.append('objeto','archivos')
     fd.append('metodo','cargarDocumento')
     fd.append('datos[ruta]',ruta)
     fd.append('datos[id]',id)
+    if (indice !== undefined && indice !== null && indice !== '') {
+        fd.append('datos[indice]', indice)
+    }
     fd.append('file',archivo)
     $.ajax({
         url: 'api',
@@ -164,15 +179,21 @@ function cargarDocumento(input, id, ruta){
         processData: false,                
         success: function(r){
             toastr.success(r.msg)
+            if (callback) callback(r);
         },
         error: function(xhr,status){
             console.log('Disculpe, existio un problema procesando')
+            if (callback) callback({ejecuto: false, msg: 'Error de red al procesar el archivo'});
         }
     })
 }
 
-function downloadDocument(idIdea, ruta) {
-    enviarPeticion('archivos', 'getDocumento', {id: idIdea, ruta: ruta}, function(r){
+function downloadDocument(idIdea, ruta, indice) {
+    let datos = {id: idIdea, ruta: ruta};
+    if (indice !== undefined && indice !== null && indice !== '') {
+        datos.indice = indice;
+    }
+    enviarPeticion('archivos', 'getDocumento', datos, function(r){
         if (r.file) {
             // Decodificar base64 a bytes binarios
             const binaryString = atob(r.file)
